@@ -78,7 +78,7 @@ DB_USER=root
 DB_PASSWORD=tu_contraseña
 DB_NAME=cocina_inteligente
 JWT_SECRET=una_clave_larga_y_secreta
-JWT_EXPIRES_IN=8h
+JWT_EXPIRES_IN=7d
 ```
 
 Inicia el servidor:
