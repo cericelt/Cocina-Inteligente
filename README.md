@@ -31,6 +31,7 @@ Proyecto de título — Carolina Lorenzo.
 
 ```
 Cocina-Inteligente/
+├── database/              # Scripts SQL: estructura, catálogo y recetas
 ├── backend/
 │   ├── server.js          # Servidor Express y registro de rutas
 │   ├── db.js              # Conexión a MySQL
@@ -55,12 +56,20 @@ Cocina-Inteligente/
 
 ### 1. Base de datos
 
-1. Crea la base de datos:
+1. Crea la base de datos y selecciónala:
    ```sql
    CREATE DATABASE cocina_inteligente;
+   USE cocina_inteligente;
    ```
-2. Ejecuta el script `schema.sql` sobre esa base para crear las tablas y cargar los datos iniciales del catálogo.
-3. Al iniciar, el servidor crea solo las tablas adicionales que falten (`esquema.js`). No modifica ni borra datos existentes.
+2. Ejecuta, en este orden, los scripts de la carpeta `database/`:
+
+   | Script | Contenido |
+   |---|---|
+   | `01_esquema.sql` | Estructura de las tablas base. Borra y vuelve a crear las tablas, así que úsalo solo en una base nueva. |
+   | `02_catalogo.sql` | Categorías, alimentos con sus valores nutricionales, recetas e ingredientes. |
+   | `03_recetas_extra.sql` | Recetas adicionales (opcional). Puede ejecutarse más de una vez sin duplicar datos. |
+
+3. Al iniciar, el servidor crea solo las tablas adicionales que falten (`backend/esquema.js`). No modifica ni borra datos existentes.
 
 ### 2. Backend
 
@@ -78,7 +87,7 @@ DB_USER=root
 DB_PASSWORD=tu_contraseña
 DB_NAME=cocina_inteligente
 JWT_SECRET=una_clave_larga_y_secreta
-JWT_EXPIRES_IN=8h
+JWT_EXPIRES_IN=7d
 ```
 
 Inicia el servidor:
