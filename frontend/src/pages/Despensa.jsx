@@ -5,9 +5,12 @@ import api from '../api';
 const ESTILOS = {
   vencido:         { fondo: '#fde8e8', borde: '#c0392b', etiqueta: 'Vencido' },
   por_vencer:      { fondo: '#fff4e0', borde: '#e67e22', etiqueta: 'Por vencer' },
-  ok:              { fondo: '#e8f6ec', borde: '#27ae60', etiqueta: 'En buen estado' },
+  ok:              { fondo: '#e8f6ec', borde: '#3d8b63', etiqueta: 'En buen estado' },
   sin_vencimiento: { fondo: '#eef1f5', borde: '#7f8c8d', etiqueta: 'Sin vencimiento' },
 };
+
+const ORDEN = ['vencido', 'por_vencer', 'ok', 'sin_vencimiento'];
+const TITULOS = { vencido: 'Vencidos', por_vencer: 'Por vencer', ok: 'En buen estado', sin_vencimiento: 'Sin vencimiento' };
 
 function textoDias(item) {
   const d = item.dias_para_vencer;
@@ -84,22 +87,16 @@ function Despensa() {
     }
   }
 
-  function cerrarSesion() {
-    localStorage.removeItem('token');
-    navigate('/login');
-  }
-
   const contar = estado => items.filter(i => i.estado === estado).length;
   const seleccionado = catalogo.find(a => String(a.id) === form.alimento_id);
 
   return (
-    <div style={{ padding: 24, maxWidth: 720, margin: '0 auto', textAlign: 'left', color: '#222' }}>
+    <div style={{ padding: 24, maxWidth: 900, margin: '0 auto', textAlign: 'left', color: '#222' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ margin: 0 }}>Mi despensa</h1>
           <small>{usuario ? usuario.email : ''}</small>
         </div>
-        <button onClick={cerrarSesion}>Cerrar sesión</button>
       </div>
 
       {error && <p style={{ color: 'crimson' }}>{error}</p>}
@@ -109,7 +106,7 @@ function Despensa() {
         <>
           <form onSubmit={agregar} style={{
             display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'flex-end',
-            background: '#f4f4f4', padding: 12, borderRadius: 6, margin: '16px 0',
+            background: '#eef4f0', padding: 12, borderRadius: 6, margin: '16px 0',
           }}>
             <label>
               Alimento<br />
@@ -146,7 +143,19 @@ function Despensa() {
 
           {items.length === 0 && <p>Tu despensa está vacía.</p>}
 
-          {items.map(item => {
+          {ORDEN.map(grupo => {
+            const delGrupo = items
+              .filter(i => (ESTILOS[i.estado] ? i.estado : 'ok') === grupo)
+              .sort((x, y) => (x.dias_para_vencer ?? 99999) - (y.dias_para_vencer ?? 99999));
+            if (delGrupo.length === 0) return null;
+            return (
+              <section key={grupo} style={{ margin: '0 0 24px' }}>
+                <h3 style={{ margin: '0 0 10px', color: ESTILOS[grupo].borde, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 12, height: 12, borderRadius: '50%', background: ESTILOS[grupo].borde, display: 'inline-block' }} />
+                  {TITULOS[grupo]} ({delGrupo.length})
+                </h3>
+          <div className="rejilla">
+          {delGrupo.map(item => {
             const estilo = ESTILOS[item.estado] || ESTILOS.ok;
             return (
               <div key={item.id} style={{
@@ -154,7 +163,6 @@ function Despensa() {
                 borderLeft: `6px solid ${estilo.borde}`,
                 borderRadius: 6,
                 padding: '10px 14px',
-                marginBottom: 10,
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
@@ -162,17 +170,21 @@ function Despensa() {
               }}>
                 <div>
                   <strong>{item.nombre}</strong>
-                  <div style={{ fontSize: 14 }}>
+                  <div style={{ fontSize: '0.9rem' }}>
                     {Number(item.cantidad)} {item.unidad_medida} · {item.categoria}
                   </div>
                 </div>
-                <div style={{ textAlign: 'right', fontSize: 14 }}>
+                <div style={{ textAlign: 'right', fontSize: '0.9rem' }}>
                   <strong style={{ color: estilo.borde }}>{estilo.etiqueta}</strong>
                   <div>{textoDias(item)}</div>
                   {item.fecha_vencimiento && <div>{formatearFecha(item.fecha_vencimiento)}</div>}
                   <button onClick={() => eliminar(item.id)} style={{ marginTop: 4 }}>Eliminar</button>
                 </div>
               </div>
+            );
+          })}
+          </div>
+              </section>
             );
           })}
         </>

@@ -6,18 +6,21 @@ const alimentosRoutes = require('./routes/alimentos');
 const inventarioRoutes = require('./routes/inventario');
 const menusRoutes = require('./routes/menus');
 const comprasRoutes = require('./routes/compras');
+const recetasRoutes = require('./routes/recetas');
 const { iniciarPurga } = require('./jobs/purga');
+const { asegurarEsquema } = require('./esquema');
 const cors = require('cors');
 const perfilRoutes = require('./routes/perfil');
 
 const app = express();
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174'] }));
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/alimentos', alimentosRoutes);
 app.use('/api/inventario', inventarioRoutes);
 app.use('/api/menus', menusRoutes);
 app.use('/api/compras', comprasRoutes);
+app.use('/api/recetas', recetasRoutes);
 app.use('/api/perfil', perfilRoutes);
 
 app.get('/', (req, res) => {
@@ -33,7 +36,11 @@ app.get('/db-test', async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT, () => {
-  console.log('Servidor escuchando en http://localhost:' + process.env.PORT);
-  iniciarPurga();
-});
+asegurarEsquema()
+  .catch((err) => console.error('No se pudieron crear las tablas nuevas:', err.message))
+  .finally(() => {
+    app.listen(process.env.PORT, () => {
+      console.log('Servidor escuchando en http://localhost:' + process.env.PORT);
+      iniciarPurga();
+    });
+  });

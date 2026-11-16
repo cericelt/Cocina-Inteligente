@@ -1,57 +1,33 @@
+/* Plato a Plato — tema verde y crema, fondo claro */
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  --verde: #2f6b4f;
+  --verde-oscuro: #1f4a36;
+  --verde-claro: #e3efe8;
+  --verde-hover: #eef6f1;
+  --crema: #f7efdd;
+  --fondo: #faf8f1;
+  --tarjeta: #ffffff;
+  --texto: #2b2f2c;
+  --texto-suave: #5d655f;
+  --borde: #dfe6e0;
 
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
+  font: 15px/150% var(--sans);
+  letter-spacing: 0.1px;
+  color-scheme: light;
+  color: var(--texto);
+  background: var(--fondo);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
 }
 
 body {
   margin: 0;
+  background: var(--fondo);
 }
 
 #root {
@@ -59,7 +35,6 @@ body {
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -67,45 +42,189 @@ body {
 }
 
 h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+h2,
+h3 {
+  font-family: var(--sans);
+  font-weight: 600;
+  color: var(--verde-oscuro);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
-
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+  font-size: 1.9rem;
+  letter-spacing: -0.5px;
+  margin: 22px 0 16px;
 }
 h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+  font-size: 1.45rem;
+  letter-spacing: -0.2px;
+  margin: 24px 0 12px;
+}
+h3 {
+  font-size: 1.1rem;
+  margin: 24px 0 12px;
 }
 p {
-  margin: 0;
+  margin: 0 0 8px;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+a {
+  color: var(--verde);
+}
+a:hover {
+  color: var(--verde-oscuro);
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+#root > div {
+  width: 100%;
+  padding: 8px 24px 32px;
+  box-sizing: border-box;
 }
+
+/* Botones */
+button {
+  font: inherit;
+  font-size: 0.93rem;
+  padding: 5px 12px;
+  border: 1px solid var(--verde);
+  border-radius: 10px;
+  background: var(--tarjeta);
+  color: var(--verde);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+button:hover:not(:disabled) {
+  background: var(--verde);
+  color: #fff;
+}
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(47, 107, 79, 0.35);
+  outline-offset: 2px;
+}
+
+/* Campos */
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='number'],
+input[type='date'],
+input:not([type]),
+select,
+textarea {
+  font: inherit;
+  font-size: 0.95rem;
+  border: 1px solid #c5d1c9;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--texto);
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--verde);
+  box-shadow: 0 0 0 3px rgba(47, 107, 79, 0.18);
+}
+input[type='checkbox'] {
+  accent-color: var(--verde);
+}
+
+table {
+  border-collapse: collapse;
+}
+small {
+  color: var(--texto-suave);
+}
+
+/* ---- Barra de navegación ---- */
+.barra {
+  display: flex;
+  align-items: center;
+  gap: 8px 12px;
+  flex-wrap: wrap;
+  margin: 14px 24px 8px;
+  padding: 8px 16px;
+  background: var(--verde);
+  border-radius: 22px;
+  box-shadow: 0 6px 16px -8px rgba(31, 74, 54, 0.6);
+  position: sticky;
+  top: 10px;
+  z-index: 10;
+  box-sizing: border-box;
+}
+.barra-marca {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+.barra-enlaces {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  flex: 1 1 auto;
+}
+.barra-enlaces a {
+  padding: 6px 10px;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--crema);
+  font-size: 0.97rem;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.barra-enlaces a:hover {
+  background: rgba(247, 239, 221, 0.16);
+  color: var(--crema);
+}
+.barra-enlaces a.activo {
+  background: var(--crema);
+  color: var(--verde-oscuro);
+  font-weight: 600;
+}
+.barra-acciones {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+}
+.tamano-letra button {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: transparent;
+  border-color: rgba(247, 239, 221, 0.55);
+  color: var(--crema);
+}
+.tamano-letra button:hover:not(:disabled) {
+  background: var(--crema);
+  color: var(--verde-oscuro);
+}
+.barra-salir {
+  padding: 6px 14px;
+  font-size: 0.97rem;
+  border-radius: 999px;
+  border: 1px solid var(--crema);
+  background: var(--crema);
+  color: var(--verde-oscuro);
+  font-weight: 600;
+}
+.barra-salir:hover:not(:disabled) {
+  background: #fff;
+  color: var(--verde-oscuro);
+}
+
+/* Tarjetas: 2 por línea */
+.rejilla {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+  margin: 0 0 16px;
+}
+.rejilla > * { margin: 0 !important; min-width: 0; }
+.rejilla > .ancho { grid-column: 1 / -1; }
+@media (max-width: 640px) { .rejilla { grid-template-columns: minmax(0, 1fr); } }

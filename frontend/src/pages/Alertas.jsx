@@ -8,6 +8,8 @@ function textoDias(d) {
   return `Vence en ${d} ${d === 1 ? 'día' : 'días'}`;
 }
 
+const grilla = { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 10, padding: 0, margin: '0 0 12px' };
+
 function Alertas() {
   const [items, setItems] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -23,40 +25,38 @@ function Alertas() {
   if (cargando) return <p>Cargando...</p>;
   if (error) return <p style={{ color: 'crimson' }}>{error}</p>;
 
-  const vencidos = items.filter(i => i.estado === 'vencido')
-    .sort((a, b) => a.dias_para_vencer - b.dias_para_vencer);
-  const porVencer = items.filter(i => i.estado === 'por_vencer')
-    .sort((a, b) => a.dias_para_vencer - b.dias_para_vencer);
+  const ordenar = (a, b) => a.dias_para_vencer - b.dias_para_vencer;
+  const vencidos = items.filter(i => i.estado === 'vencido').sort(ordenar);
+  const porVencer = items.filter(i => i.estado === 'por_vencer').sort(ordenar);
 
-  const fila = (i, color) => (
-    <li key={i.id} style={{ borderLeft: `6px solid ${color}`, background: '#fff', border: '1px solid #ddd',
-                            borderLeftWidth: 6, borderLeftColor: color, borderRadius: 6,
-                            padding: '8px 12px', marginBottom: 8, listStyle: 'none' }}>
-      <strong>{i.nombre}</strong> · {Number(i.cantidad)} {i.unidad_medida}
-      <div style={{ fontSize: 14, color: '#555' }}>
-        {textoDias(i.dias_para_vencer)} ({String(i.fecha_vencimiento).slice(0, 10)})
-      </div>
-    </li>
+  const cuadro = (i, color, fondo) => (
+    <div key={i.id} style={{ background: fondo, border: `1px solid ${color}`, borderTop: `5px solid ${color}`,
+                             borderRadius: 8, padding: '10px 12px', fontSize: '0.85rem', lineHeight: 1.35 }}>
+      <strong style={{ display: 'block', fontSize: '0.95rem' }}>{i.nombre}</strong>
+      <div>{Number(i.cantidad)} {i.unidad_medida}</div>
+      <div style={{ color, fontWeight: 'bold', marginTop: 4 }}>{textoDias(i.dias_para_vencer)}</div>
+      <div style={{ color: '#555', fontSize: '0.75rem' }}>{String(i.fecha_vencimiento).slice(0, 10).split('-').reverse().join('-')}</div>
+    </div>
   );
 
   return (
-    <div style={{ padding: 24, maxWidth: 720, margin: '0 auto', textAlign: 'left', color: '#222' }}>
-      <h2>Alertas de vencimiento</h2>
+    <div style={{ padding: 24, maxWidth: 900, margin: '0 auto', textAlign: 'left', color: '#222' }}>
+      <h2 style={{ margin: '0 0 16px' }}>Alertas de vencimiento</h2>
 
-      <h3 style={{ color: '#c0392b' }}>Vencidos ({vencidos.length})</h3>
+      <h3 style={{ color: '#c0392b', margin: '16px 0 10px' }}>Vencidos ({vencidos.length})</h3>
       {vencidos.length === 0
         ? <p>No tienes alimentos vencidos 👍</p>
-        : <ul style={{ padding: 0 }}>{vencidos.map(i => fila(i, '#c0392b'))}</ul>}
+        : <div style={grilla}>{vencidos.map(i => cuadro(i, '#c0392b', '#fdecea'))}</div>}
       {vencidos.length > 0 && (
-        <p style={{ fontSize: 13, color: '#666' }}>
+        <p style={{ fontSize: '0.8rem', color: '#666' }}>
           Los alimentos vencidos no se usan en las sugerencias. Elimínalos desde la Despensa.
         </p>
       )}
 
-      <h3 style={{ color: '#e67e22' }}>Por vencer ({porVencer.length})</h3>
+      <h3 style={{ color: '#e67e22', margin: '24px 0 10px' }}>Por vencer ({porVencer.length})</h3>
       {porVencer.length === 0
         ? <p>No tienes alimentos por vencer pronto.</p>
-        : <ul style={{ padding: 0 }}>{porVencer.map(i => fila(i, '#e67e22'))}</ul>}
+        : <div style={grilla}>{porVencer.map(i => cuadro(i, '#e67e22', '#fff4e0'))}</div>}
       {porVencer.length > 0 && (
         <p><Link to="/menus">Ver recetas que usan estos alimentos →</Link></p>
       )}

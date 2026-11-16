@@ -15,7 +15,22 @@ function normalizar(texto) {
     .trim();
 }
 
+// Categorías de alimentos que se excluyen según la restricción de dieta (aproximado, por categoría)
+function categoriasExcluidas(restricciones) {
+  const ex = new Set();
+  for (const r of restricciones) {
+    const t = normalizar(r);
+    if (t.includes('vegan')) ['carnes', 'aves', 'pescados y mariscos', 'lacteos', 'huevos'].forEach((c) => ex.add(c));
+    else if (t.includes('vegetarian')) ['carnes', 'aves', 'pescados y mariscos'].forEach((c) => ex.add(c));
+    if (t.includes('lactosa') || t.includes('lacteo')) ex.add('lacteos');
+    if (t.includes('gluten') || t.includes('celiac')) ['cereales y derivados', 'panaderia'].forEach((c) => ex.add(c));
+  }
+  return ex;
+}
+
 // GET /api/menus/sugerencias
+//   ?personas=1,2        -> solo se aplican las alergias/restricciones de esas personas (vacío = ninguna; sin el parámetro = todas)
+//   &alergias_extra=maní -> alergias o restricciones de invitados (separadas por coma)
 router.get('/sugerencias', async (req, res) => {
   try {
     const usuarioId = req.usuario.id;
@@ -39,15 +54,33 @@ router.get('/sugerencias', async (req, res) => {
       });
     }
 
-    // Alergias del perfil nutricional (texto separado por comas)
-    const [perfil] = await pool.query(
-      'SELECT alergias FROM perfiles_nutricionales WHERE usuario_id = ?',
+    // Alergias y restricciones: de las personas elegidas (o de todas) + las de invitados
+    let textoAlergias = [];
+    let textoRestricciones = [];
+    const [personas] = await pool.query(
+      'SELECT id, alergias, restricciones_dieta FROM personas WHERE usuario_id = ?',
       [usuarioId]
     );
-    const alergias = (perfil[0]?.alergias || '')
-      .split(',')
-      .map(normalizar)
-      .filter(Boolean);
+    if (personas.length > 0) {
+      let elegidas = personas;
+      if (typeof req.query.personas === 'string') {
+        const ids = req.query.personas.split(',').map(Number).filter(Boolean);
+        elegidas = personas.filter((p) => ids.includes(p.id));
+      }
+      textoAlergias = elegidas.map((p) => p.alergias || '');
+      textoRestricciones = elegidas.map((p) => p.restricciones_dieta || '');
+    } else {
+      const [perfil] = await pool.query(
+        'SELECT alergias, restricciones_dieta FROM perfiles_nutricionales WHERE usuario_id = ?',
+        [usuarioId]
+      );
+      textoAlergias = [perfil[0]?.alergias || ''];
+      textoRestricciones = [perfil[0]?.restricciones_dieta || ''];
+    }
+    const extra = String(req.query.alergias_extra || '');
+    const separar = (arr) => arr.join(',').split(/[,;.\n]/).map(normalizar).filter(Boolean);
+    const alergias = [...separar(textoAlergias), ...separar([extra])];
+    const excluidas = categoriasExcluidas([...separar(textoRestricciones), ...separar([extra])]);
 
     // Todas las recetas con sus ingredientes
     const [filas] = await pool.query(
@@ -84,9 +117,12 @@ router.get('/sugerencias', async (req, res) => {
         return alergias.some((a) => nombre.includes(a) || categoria.includes(a));
       });
       if (contieneAlergia) continue;
+      const contieneRestringido = receta.ingredientes.some((i) => excluidas.has(normalizar(i.categoria)));
+      if (contieneRestringido) continue;
 
       const faltantes = [];
       const porVencer = [];
+      const porVencerDetalle = [];
       let disponibles = 0;
 
       for (const ing of receta.ingredientes) {
@@ -97,6 +133,7 @@ router.get('/sugerencias', async (req, res) => {
           disponibles++;
           if (enStock.dias !== null && enStock.dias <= DIAS_ALERTA) {
             porVencer.push(ing.alimento);
+            porVencerDetalle.push({ alimento: ing.alimento, dias: enStock.dias });
           }
         } else {
           faltantes.push({
@@ -115,15 +152,18 @@ router.get('/sugerencias', async (req, res) => {
         puede_cocinar: faltantes.length === 0,
         cobertura: Math.round((disponibles / receta.ingredientes.length) * 100),
         ingredientes_por_vencer: porVencer,
+        ingredientes_por_vencer_detalle: porVencerDetalle,
         faltantes,
       });
     }
 
-    // Orden: se puede cocinar, más ingredientes por vencer, mayor cobertura
+    // Orden: 1) las que usan alimentos por vencer (más ingredientes por vencer primero),
+    // 2) dentro de eso, las que se pueden cocinar ya, 3) mayor cobertura
     sugerencias.sort(
       (a, b) =>
-        Number(b.puede_cocinar) - Number(a.puede_cocinar) ||
+        Number(b.ingredientes_por_vencer.length > 0) - Number(a.ingredientes_por_vencer.length > 0) ||
         b.ingredientes_por_vencer.length - a.ingredientes_por_vencer.length ||
+        Number(b.puede_cocinar) - Number(a.puede_cocinar) ||
         b.cobertura - a.cobertura
     );
 

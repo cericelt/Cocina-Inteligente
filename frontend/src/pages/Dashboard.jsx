@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
+import Logo from '../Logo';
 
 const tarjeta = (color) => ({
   flex: '1 1 150px', background: '#fff', border: '1px solid #ddd', borderTop: `5px solid ${color}`,
@@ -37,23 +38,28 @@ function Dashboard() {
 
   return (
     <div style={{ padding: 24, maxWidth: 720, margin: '0 auto', textAlign: 'left', color: '#222' }}>
-      <h2>Resumen de tu cocina</h2>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 16 }}>
+        <div>
+          <Logo tipo="palabra" alto={34} />
+          <h2 style={{ margin: '8px 0 0' }}>Resumen de tu cocina</h2>
+        </div>
+      </div>
 
       <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', margin: '12px 0' }}>
-        <div style={tarjeta('#27ae60')}>
-          <div style={{ fontSize: 28, fontWeight: 'bold' }}>{inventario.length}</div>
+        <div style={tarjeta('#3d8b63')}>
+          <div style={{ fontSize: '1.7rem', fontWeight: 'bold' }}>{inventario.length}</div>
           <div>Productos en despensa</div>
         </div>
         <div style={tarjeta('#e67e22')}>
-          <div style={{ fontSize: 28, fontWeight: 'bold' }}>{porVencer}</div>
+          <div style={{ fontSize: '1.7rem', fontWeight: 'bold' }}>{porVencer}</div>
           <div>Por vencer</div>
         </div>
         <div style={tarjeta('#c0392b')}>
-          <div style={{ fontSize: 28, fontWeight: 'bold' }}>{vencidos}</div>
+          <div style={{ fontSize: '1.7rem', fontWeight: 'bold' }}>{vencidos}</div>
           <div>Vencidos</div>
         </div>
-        <div style={tarjeta('#7a2422')}>
-          <div style={{ fontSize: 28, fontWeight: 'bold' }}>{puedeCocinar}</div>
+        <div style={tarjeta('#2f6b4f')}>
+          <div style={{ fontSize: '1.7rem', fontWeight: 'bold' }}>{puedeCocinar}</div>
           <div>Recetas que puedes cocinar hoy</div>
         </div>
       </div>
@@ -81,6 +87,7 @@ function Dashboard() {
         <Link to="/menus"><button>🍽️ Ver menús sugeridos</button></Link>
         <Link to="/semana"><button>📅 Menú semanal</button></Link>
         <Link to="/compras"><button>🛒 Mis listas de compras</button></Link>
+        <Link to="/perfil"><button>👥 Personas y restricciones</button></Link>
       </div>
     </div>
   );
